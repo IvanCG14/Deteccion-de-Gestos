@@ -13,7 +13,7 @@ Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando Med
 
 ---
 
-## 🔧 Requisitos
+## Requisitos
 
 ### Software
 - Python 3.7 o superior
@@ -29,7 +29,7 @@ numpy>=1.21.0
 
 ---
 
-## 📦 Instalación
+## Instalación
 
 ### 1. Clonar/Descargar el proyecto
 ```bash
@@ -66,7 +66,7 @@ numpy==1.24.3
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 hand-dataset-creator/
@@ -91,7 +91,7 @@ hand-dataset-creator/
 
 ---
 
-## 🎮 Uso
+## Uso
 
 ### Ejecutar el programa
 ```bash
@@ -154,7 +154,7 @@ Shoot!
 
 ---
 
-## 📊 Formato de Datos
+## Formato de Datos
 
 ### Imágenes
 - **Formato:** JPG
@@ -180,7 +180,7 @@ dataset/images/rock/rock_0001.jpg,rock,320,240,0,350,220,5,...,280,180,10
 
 ---
 
-## 🖐️ Landmarks de MediaPipe
+## Landmarks de MediaPipe
 
 MediaPipe detecta **21 puntos** en la mano:
 
@@ -242,7 +242,7 @@ R, C, U = Muñeca (Wrist)
 
 ---
 
-## 🎯 Recomendaciones para un Buen Dataset
+## Recomendaciones para un Buen Dataset
 
 ### Cantidad de Datos
 - **Mínimo:** 100 imágenes por clase
@@ -275,7 +275,7 @@ None:     100 imágenes (opcional)
 
 ---
 
-## 🔍 Solución de Problemas
+## Solución de Problemas
 
 ### Error: "No module named 'mediapipe'"
 ```bash
@@ -302,37 +302,6 @@ pip install mediapipe opencv-python
 - Cierra otras aplicaciones
 - Verifica que tienes buena CPU (MediaPipe es intensivo)
 - Reduce la resolución en el código si es necesario
-
----
-
-## 📈 Siguientes Pasos
-
-Una vez tengas tu dataset:
-
-1. **Entrenar un modelo de clasificación:**
-   ```python
-   from sklearn.ensemble import RandomForestClassifier
-   import pandas as pd
-   
-   df = pd.read_csv('dataset/landmarks/rock_landmarks.csv')
-   # ... entrenar modelo
-   ```
-
-2. **Usar el detector de gestos en tiempo real:**
-   - Carga tu modelo entrenado
-   - Aplica el mismo feature engineering
-   - Clasifica gestos en tiempo real
-
-3. **Mejorar el dataset:**
-   - Añadir más variedad
-   - Balancear las clases
-   - Capturar con diferentes personas
-
----
-
-## 🤝 Contribuciones
-
-Si mejoras el código o encuentras bugs, ¡comparte tus cambios!
 
 ---
 
