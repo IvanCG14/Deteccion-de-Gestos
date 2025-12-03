@@ -16,15 +16,15 @@ Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando Med
 ## Requisitos
 
 ### Software
-- Python 3.7 o superior
+- Python 3.11.9
 - Webcam funcional
 - Sistema operativo: Windows, macOS, o Linux
 
 ### Librerías Principales
 ```
-mediapipe>=0.10.0
-opencv-python>=4.8.0
-numpy>=1.21.0
+mediapipe>=0.10.21
+opencv-python>=4.11.0
+numpy>=2.3.5
 ```
 
 ---
@@ -33,7 +33,9 @@ numpy>=1.21.0
 
 ### 1. Clonar/Descargar el proyecto
 ```bash
-cd hand-dataset-creator
+# en la carpeta de preferencia
+git clone https://github.com/IvanCG14/Deteccion-de-Gestos.git
+cd Getdata 
 ```
 
 ### 2. Crear entorno virtual (recomendado)
@@ -59,9 +61,9 @@ pip install -r requirements.txt
 
 **Archivo `requirements.txt`:**
 ```
-mediapipe==0.10.14
-opencv-python==4.8.1.78
-numpy==1.24.3
+mediapipe==0.10.21
+opencv-python==4.11.0
+numpy==2.3.5
 ```
 
 ---
@@ -69,9 +71,9 @@ numpy==1.24.3
 ## Estructura del Proyecto
 
 ```
-hand-dataset-creator/
+Getdata/
 │
-├── dataset_creator.py          # Script principal
+├── getdata_rsp.py          # Script principal
 ├── requirements.txt            # Dependencias
 ├── README.md                   # Este archivo
 │
@@ -95,7 +97,7 @@ hand-dataset-creator/
 
 ### Ejecutar el programa
 ```bash
-python dataset_creator.py
+python getdata_rsp.py
 ```
 
 ### Controles del Teclado
@@ -114,7 +116,7 @@ python dataset_creator.py
 
 1. **Inicia el programa**
    ```bash
-   python dataset_creator.py
+   python getdata_rsp.py
    ```
 
 2. **Selecciona el gesto** (presiona 1, 2, 3, o 4)
@@ -270,7 +272,7 @@ Intenta tener un número similar de imágenes en cada clase:
 Rock:     250 imágenes
 Paper:    240 imágenes
 Scissors: 260 imágenes
-None:     100 imágenes (opcional)
+None:     240 imágenes (opcional)
 ```
 
 ---
