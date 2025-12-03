@@ -1,8 +1,10 @@
 # Deteccion-de-Gestos
 
 ## Creación de dataset
+Descripción completa en [dataset_readme](Getdata/dataset_readme.md)
+
 **Paso 1: Preparación**
-1. Ejecuta el script
+1. Ejecuta el script [getdata_rsp.py](Getdata/getdata_rsp.py)
 2. Verás la ventana de la cámara con información en pantalla
 
 **Paso 2: Captura de cada gesto**
