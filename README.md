@@ -138,6 +138,35 @@ print(torch.argmax(pred))
 
 El Aumento de Datos previene el sobreajuste (overfitting) al simular variaciones del mundo real y hacer el modelo más robusto a cambios en la captura (iluminación, ángulo, tamaño).
 
+Bloque de data augmentation:
+```python
+# ============================================
+# 4. DATA AUGMENTATION
+# ============================================
+
+def get_train_transforms(img_size: Tuple[int, int] = (224, 224)):
+    """Transformaciones con augmentation para entrenamiento"""
+    return transforms.Compose([
+        transforms.Resize((int(img_size[0] * 1.1), int(img_size[1] * 1.1))),
+        transforms.RandomCrop(img_size),
+        transforms.RandomHorizontalFlip(p=0.3),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.RandomRotation(degrees=15),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                           std=[0.229, 0.224, 0.225])
+    ])
+
+def get_val_transforms(img_size: Tuple[int, int] = (224, 224)):
+    """Transformaciones sin augmentation para val/test"""
+    return transforms.Compose([
+        transforms.Resize(img_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                           std=[0.229, 0.224, 0.225])
+    ])
+```
+
 ![Augmentation](imgs/dataset_samples.png)
 
 ### Transformaciones Aplicadas (Rama RGB)
