@@ -371,7 +371,8 @@ train_loader = DataLoader(..., drop_last=True)
 **Solución:**
 ```bash
 pip install torch torchvision
-# Para GPU con CUDA 11.8:
+# Para GPU según tu versión de CUDA
+# Ej: para versión CUDA 11.8:
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ```
 
