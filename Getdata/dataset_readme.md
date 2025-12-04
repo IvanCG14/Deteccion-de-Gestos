@@ -188,6 +188,10 @@ MediaPipe detecta **21 puntos** en la mano:
 
 ### Estructura de la Mano
 ![Marcadores_Mano](hand-landmarks.png)
+Derecha:
+![Mano_der](der.png)
+Izquierda:
+![Mano_izq](izq.png)
 
 ### Índices de Landmarks
 
