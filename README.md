@@ -123,7 +123,7 @@ best_model.pth
 Y puede cargarse después para inferencia.
 
 ### 🤖 Uso del modelo entrenado
-```
+```python
 model = torch.load("model.pth")
 model.eval()
 
@@ -137,6 +137,8 @@ print(torch.argmax(pred))
 ## Data augmentation
 
 El Aumento de Datos previene el sobreajuste (overfitting) al simular variaciones del mundo real y hacer el modelo más robusto a cambios en la captura (iluminación, ángulo, tamaño).
+
+![Augmentation](imgs/dataset_samples.png)
 
 ### Transformaciones Aplicadas (Rama RGB)
 
