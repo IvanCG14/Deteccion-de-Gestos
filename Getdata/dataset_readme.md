@@ -187,23 +187,7 @@ dataset/images/rock/rock_0001.jpg,rock,320,240,0,350,220,5,...,280,180,10
 MediaPipe detecta **21 puntos** en la mano:
 
 ### Estructura de la Mano
-```
-       ( P1 ) ( I1 ) ( M1 ) ( A1 ) ( E1 )  <== 5 Marcadores en Puntas (Falange Distal)
-         |      |      |      |      |
-         |   .---.  .---.  .---.    |
-         |  ( I2 )( M2 )( A2 )      |      <== 3 Marcadores en Falange Intermedia (PIP)
-         |   `|'   `|'   `|'        |
-         |      |      |      |      |
-       .---.  .---.  .---.  .---.  .---.
-      ( P2 )( I3 )( M3 )( A3 )( E2 )      <== 5 Marcadores en Nudillos (MCP)
-       `-'    `-'    `-'    `-'    `-'
-         \____/      \____/
-
-
-            .---.  .---.  .---.
-           ( R ) ( C ) ( U )             <== 3 Marcadores en Muñeca
-            `-'   `-|'   `-'
-```
+![Marcadores_Mano](hand-landmarks.png)
 
 ### Índices de Landmarks
 
