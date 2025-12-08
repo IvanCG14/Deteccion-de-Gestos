@@ -41,8 +41,8 @@ cd Getdata
 ### 2. Crear entorno virtual (recomendado)
 ```bash
 # Windows
-python -m venv venv
-venv\Scripts\activate
+py -m venv venv
+.\venv\Scripts\activate
 
 # macOS/Linux
 python3 -m venv venv
@@ -61,9 +61,9 @@ pip install -r requirements.txt
 
 **Archivo `requirements.txt`:**
 ```
-mediapipe==0.10.21
-opencv-python==4.11.0
-numpy==2.3.5
+mediapipe>=0.10.21
+opencv-python==4.11.0.86
+numpy==1.23.5
 ```
 
 ---
