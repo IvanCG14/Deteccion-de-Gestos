@@ -117,7 +117,7 @@ tqdm==4.67.1  # Barras de progreso durante entrenamiento
 ## Estructura del Proyecto
 
 ```
-Deteccion-de-Gestos/
+modelo/
 │
 ├── dataset/                          # Dataset de gestos
 │   ├── images/                       # Imágenes RGB organizadas por clase
@@ -140,23 +140,12 @@ Deteccion-de-Gestos/
 │       ├── rock_landmarks.csv
 │       └── scissors_landmarks.csv
 │
-├── src/                              # Código fuente
-│   ├── __init__.py
-│   ├── dataset.py                    # RockPaperScissorsDataset class
-│   ├── model.py                      # MultimodalGestureModel
-│   ├── train.py                      # Training loop
-│   └── utils.py                      # Funciones auxiliares
-│
-├── notebooks/                        # Jupyter notebooks (opcional)
-│   ├── 01_exploratory_analysis.ipynb
-│   └── 02_model_testing.ipynb
-│
 ├── results/                          # Resultados de entrenamiento
 │   ├── best_model.pth               # Mejor modelo guardado
 │   ├── results.png                  # Gráficas de loss/accuracy
 │   └── confusion_matrix.png         # Matriz de confusión
 │
-├── run_training.py                   # Script principal para entrenar
+├── RSP_model.ipynb
 ├── requirements.txt                  # Dependencias del proyecto
 ├── README.md                         # Este archivo
 └── .gitignore                        # Archivos a ignorar en Git
