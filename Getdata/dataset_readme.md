@@ -187,11 +187,11 @@ dataset/images/rock/rock_0001.jpg,rock,320,240,0,350,220,5,...,280,180,10
 MediaPipe detecta **21 puntos** en la mano:
 
 ### Estructura de la Mano
-![Marcadores_Mano](hand-landmarks.png)
+![Marcadores_Mano](imgs/hand-landmarks.png)
 Derecha:
-![Mano_der](der.png)
+![Mano_der](imgs/der.png)
 Izquierda:
-![Mano_izq](izq.png)
+![Mano_izq](imgs/izq.png)
 
 ### Índices de Landmarks
 
