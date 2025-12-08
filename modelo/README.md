@@ -68,8 +68,8 @@ git clone https://github.com/IvanCG14/Deteccion-de-Gestos.git
 
 **Windows:**
 ```bash
-python -m venv venv
-venv\Scripts\activate
+py -m venv venv
+.\venv\Scripts\activate
 ```
 
 **Linux/macOS:**
@@ -91,14 +91,14 @@ pip install -r requirements.txt
 
 ```txt
 # Core Deep Learning
-torch==2.9.1+cpu  # PyTorch framework
-torchvision==0.24.1+cpu  # Modelos preentrenados y transforms
-numpy==2.1.3  # Operaciones numéricas
+torch==2.9.1  # PyTorch framework
+torchvision==0.24.1  # Modelos preentrenados y transforms
+numpy==1.23.5  # Operaciones numéricas
 
 # Data Processing
 pandas==2.2.3  # Manipulación de CSVs
 pillow==11.1.0  # Procesamiento de imágenes (PIL)
-opencv-python==4.12.0  # Computer vision (opcional, para MediaPipe)
+opencv-python==4.11.0.86  # Computer vision (opcional, para MediaPipe)
 
 # Machine Learning Utilities
 scikit-learn==1.6.1  # Metrics, train_test_split
