@@ -1,5 +1,82 @@
 # Deteccion de Gestos
 
+## Instlación de Environment
+
+### Clonar/Descargar el proyecto
+
+```bash
+# en la carpeta de preferencia
+git clone https://github.com/IvanCG14/Deteccion-de-Gestos.git
+```
+
+Navega al directorio `environment` que contiene los archivos de configuración:
+
+```bash
+cd ./environment/
+```
+
+Los archivos `environment.yml` y `requirements.txt` permiten reproducir el entorno completo.
+
+### Opción 1 — Instalación automática (recomendada)
+Usa el fichero `environment.yml` para crear el entorno con todas las dependencias especificadas.
+
+1. Desde la carpeta que contiene `environment.yml`, ejecuta:
+
+```bash
+conda env create -f environment.yml
+conda activate cti_env_gpu
+```
+
+2. Verifica la instalación de PyTorch y la disponibilidad de la GPU:
+
+```bash
+python -c "import torch; print(f'Torch: {torch.__version__} | CUDA disponible: {torch.cuda.is_available()}')"
+```
+
+Si `CUDA disponible` es `True`, la GPU está configurada correctamente.
+
+---
+
+### Opción 2 — Instalación manual
+Si la instalación automática falla o prefieres controlar cada paso:
+
+1. Crear y activar el entorno base:
+
+```bash
+conda create -n cti_env_gpu python=3.11.14 pip -y
+conda activate cti_env_gpu
+```
+
+2. Instalar PyTorch compatible con CUDA 13.0 (rueda oficial):
+
+```bash
+pip install torch==2.9.0+cu130 torchvision==0.24.0+cu130 --index-url https://download.pytorch.org/whl/cu130
+```
+
+3. Instalar dependencias adicionales:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Verificación adicional (opcional):
+
+```bash
+# Comprobar versión de CUDA en el sistema
+nvidia-smi
+
+# Probar desde Python
+python -c "import torch; print('Torch', torch.__version__); print('CUDA disponible:', torch.cuda.is_available()); print('Dispositivos CUDA:', torch.cuda.device_count())"
+```
+
+Si no dispone de GPU o prefieres instalar la versión CPU-only de PyTorch, usa:
+
+```bash
+pip install torch==2.9.0+cpu torchvision==0.24.0+cpu --index-url https://download.pytorch.org/whl/cpu
+```
+
+---
+
 ## Creación de dataset
 
 En la carpeta getdata se encuentra el script para generar un dataset de 2 modalidades:
@@ -15,6 +92,8 @@ Link de dataset ejemplo: [Dataset_ejemplo](https://1drv.ms/f/c/66c04837d2873fa4/
 Este proyecto implementa un modelo de deep learning multimodal para reconocimiento de gestos de mano. Combina:
 - **Modalidad Visual (RGB)**: Imágenes procesadas con ResNet-18 preentrenado
 - **Modalidad Esquelética (3D)**: 21 landmarks de MediaPipe procesados con MLP
+- **Modalidad EMG**: 8 canales EMG procesados con LTSM
+- **Modalidad IMU**: Datos IMU de (orientación, aceleración, giroscopio)
 
 Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando Deep Learning multimodal que fusiona imágenes RGB y landmarks 3D de MediaPipe.
 
@@ -48,9 +127,7 @@ Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando
 ## Referencias
 
 ### Papers
-- He, K., et al. (2016). "Deep Residual Learning for Image Recognition". CVPR.
-- Ioffe, S., & Szegedy, C. (2015). "Batch Normalization". ICML.
-- Baltrusaitis, T., et al. (2018). "Multimodal Machine Learning: A Survey". IEEE TPAMI.
+- 
 
 ### Código Base
 - PyTorch: https://pytorch.org/
