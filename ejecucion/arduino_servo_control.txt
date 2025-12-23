@@ -1,0 +1,259 @@
+/*
+ * Control de Servo para Gestos de Piedra, Papel y Tijera
+ * Recibe comandos desde Python vía Serial
+ * 
+ * Conexiones:
+ * - Servo Signal -> Pin 9
+ * - Servo VCC -> 5V
+ * - Servo GND -> GND
+ * 
+ * Comandos recibidos: ángulo en grados (0-180)
+ * Ejemplo: "90\n" mueve el servo a 90 grados
+ */
+
+#include <Servo.h>
+
+// ============================================
+// CONFIGURACIÓN
+// ============================================
+#define SERVO_PIN 9
+#define BAUD_RATE 9600
+
+// Ángulos para cada gesto
+#define ANGLE_PAPER 0      // Papel: mano abierta
+#define ANGLE_ROCK 90      // Piedra: mano cerrada
+#define ANGLE_SCISSORS 180 // Tijera: dedos extendidos
+#define ANGLE_NEUTRAL 90   // Posición neutral
+
+// Velocidad de movimiento (ms entre pasos)
+#define MOVE_DELAY 15
+
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+Servo myServo;
+int currentAngle = ANGLE_NEUTRAL;
+int targetAngle = ANGLE_NEUTRAL;
+
+// Buffer para lectura serial
+String inputString = "";
+boolean stringComplete = false;
+
+// LED indicador (opcional, pin 13)
+#define LED_PIN 13
+
+// ============================================
+// SETUP
+// ============================================
+void setup() {
+  // Inicializar serial
+  Serial.begin(BAUD_RATE);
+  Serial.println("Arduino Servo Controller - Iniciado");
+  Serial.println("Esperando comandos...");
+  
+  // Configurar servo
+  myServo.attach(SERVO_PIN);
+  myServo.write(ANGLE_NEUTRAL);
+  currentAngle = ANGLE_NEUTRAL;
+  
+  // LED indicador
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  
+  // Reservar espacio para buffer
+  inputString.reserve(20);
+  
+  // Secuencia de inicio (opcional)
+  startupSequence();
+}
+
+// ============================================
+// LOOP PRINCIPAL
+// ============================================
+void loop() {
+  // Leer comandos desde serial
+  if (stringComplete) {
+    processCommand(inputString);
+    inputString = "";
+    stringComplete = false;
+  }
+  
+  // Mover servo suavemente hacia target
+  smoothMove();
+  
+  delay(10);
+}
+
+// ============================================
+// EVENTO SERIAL
+// ============================================
+void serialEvent() {
+  while (Serial.available()) {
+    char inChar = (char)Serial.read();
+    
+    if (inChar == '\n') {
+      stringComplete = true;
+    } else {
+      inputString += inChar;
+    }
+  }
+}
+
+// ============================================
+// PROCESAR COMANDO
+// ============================================
+void processCommand(String command) {
+  command.trim();
+  
+  // Convertir a entero
+  int angle = command.toInt();
+  
+  // Validar rango
+  if (angle >= 0 && angle <= 180) {
+    targetAngle = angle;
+    
+    // Parpadear LED
+    digitalWrite(LED_PIN, HIGH);
+    delay(50);
+    digitalWrite(LED_PIN, LOW);
+    
+    // Mensaje de confirmación
+    Serial.print("Moviendo a: ");
+    Serial.print(targetAngle);
+    Serial.print("° (desde ");
+    Serial.print(currentAngle);
+    Serial.println("°)");
+    
+    // Identificar gesto
+    String gesture = identifyGesture(angle);
+    if (gesture != "") {
+      Serial.print("Gesto: ");
+      Serial.println(gesture);
+    }
+  } else {
+    Serial.print("Error: ángulo inválido (");
+    Serial.print(angle);
+    Serial.println("). Debe estar entre 0-180");
+  }
+}
+
+// ============================================
+// IDENTIFICAR GESTO POR ÁNGULO
+// ============================================
+String identifyGesture(int angle) {
+  if (abs(angle - ANGLE_PAPER) < 5) {
+    return "PAPEL";
+  } else if (abs(angle - ANGLE_ROCK) < 5) {
+    return "PIEDRA";
+  } else if (abs(angle - ANGLE_SCISSORS) < 5) {
+    return "TIJERA";
+  }
+  return "";
+}
+
+// ============================================
+// MOVIMIENTO SUAVE
+// ============================================
+void smoothMove() {
+  if (currentAngle != targetAngle) {
+    // Determinar dirección
+    int step = (targetAngle > currentAngle) ? 1 : -1;
+    
+    // Mover un grado
+    currentAngle += step;
+    myServo.write(currentAngle);
+    
+    delay(MOVE_DELAY);
+  }
+}
+
+// ============================================
+// SECUENCIA DE INICIO
+// ============================================
+void startupSequence() {
+  Serial.println("Ejecutando secuencia de inicio...");
+  
+  // Mover a cada posición
+  moveToPosition(ANGLE_PAPER, "Papel");
+  delay(500);
+  
+  moveToPosition(ANGLE_ROCK, "Piedra");
+  delay(500);
+  
+  moveToPosition(ANGLE_SCISSORS, "Tijera");
+  delay(500);
+  
+  moveToPosition(ANGLE_NEUTRAL, "Neutral");
+  
+  Serial.println("✓ Listo para recibir comandos");
+}
+
+// ============================================
+// MOVER A POSICIÓN (HELPER)
+// ============================================
+void moveToPosition(int angle, String name) {
+  Serial.print("Probando: ");
+  Serial.println(name);
+  
+  while (currentAngle != angle) {
+    int step = (angle > currentAngle) ? 1 : -1;
+    currentAngle += step;
+    myServo.write(currentAngle);
+    delay(MOVE_DELAY);
+  }
+}
+
+// ============================================
+// COMANDOS ADICIONALES (OPCIONAL)
+// ============================================
+/*
+ * Puedes agregar más comandos si lo deseas:
+ * 
+ * - "P" o "p" -> Papel (0°)
+ * - "R" o "r" -> Piedra (90°)
+ * - "S" o "s" -> Tijera (180°)
+ * - "N" o "n" -> Neutral (90°)
+ * - "T" -> Test sequence
+ * 
+ * Descomenta el siguiente bloque:
+ */
+
+/*
+void processCommand(String command) {
+  command.trim();
+  command.toUpperCase();
+  
+  // Comandos por letra
+  if (command == "P") {
+    targetAngle = ANGLE_PAPER;
+    Serial.println("→ PAPEL");
+  } 
+  else if (command == "R") {
+    targetAngle = ANGLE_ROCK;
+    Serial.println("→ PIEDRA");
+  } 
+  else if (command == "S") {
+    targetAngle = ANGLE_SCISSORS;
+    Serial.println("→ TIJERA");
+  } 
+  else if (command == "N") {
+    targetAngle = ANGLE_NEUTRAL;
+    Serial.println("→ NEUTRAL");
+  }
+  else if (command == "T") {
+    Serial.println("Ejecutando test...");
+    startupSequence();
+  }
+  // Comandos numéricos
+  else {
+    int angle = command.toInt();
+    if (angle >= 0 && angle <= 180) {
+      targetAngle = angle;
+      Serial.print("→ Ángulo: ");
+      Serial.println(targetAngle);
+    } else {
+      Serial.println("✗ Comando inválido");
+    }
+  }
+}
+*/

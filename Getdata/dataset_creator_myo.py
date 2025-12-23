@@ -314,7 +314,7 @@ from pathlib import Path
 
 # 1. Obtener la ruta de la carpeta raíz del proyecto (subiendo un nivel desde 'getdata')
 # __file__ es la ubicación de dataset_creator_myo.py
-BASE_DIR = Path(__file__).resolve().parent.parent 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent 
 
 # 2. Construir la ruta al SDK de forma relativa
 sdk_path = os.path.join(BASE_DIR, "MYO_armband_SDK", "myo-sdk-win-0.9.0")
@@ -362,12 +362,13 @@ if __name__ == "__main__":
     current_mode = 'rock'
     capturing = False
     last_capture_time = 0
-    capture_interval = 0.5
+    capture_interval = 2.0
     
     print("\n" + "="*60)
     print("CREADOR DE DATASET SINCRONIZADO")
     print("MEDIAPIPE + MYO ARMBAND (EMG + IMU)")
     print("="*60)
+    print(sdk_path)
     print("\nControles:")
     print("  1 - Modo ROCK")
     print("  2 - Modo PAPER")
@@ -415,26 +416,30 @@ if __name__ == "__main__":
             
             # Captura automática
             current_time = time.time()
+            # Captura automática con retraso para centrar la foto
+            current_time = time.time()
             if capturing and hand_detected and (current_time - last_capture_time) >= capture_interval:
-                # Obtener datos del Myo
-                if myo_listener and myo_listener.connected:
-                    myo_data = myo_listener.get_snapshot()
-                else:
-                    # Datos vacíos si no hay Myo
-                    myo_data = {
-                        'emg_timestamps': [],
-                        'emg_channels': [[] for _ in range(8)],
-                        'imu_timestamps': [],
-                        'orientation': [],
-                        'accel': [],
-                        'gyro': []
-                    }
+                # 1. Tomamos la "foto" y los landmarks AHORA
+                frame_to_save = cv2.resize(frame_original, (640, 480))
+                landmarks_to_save = list(landmarks) # Copia profunda de los puntos
                 
-                # Guardar muestra
+                # 2. Definimos una función que esperará para obtener los datos del Myo
+                def save_with_delay(f, l, mode, count):
+                    time.sleep(1.0) # Espera 1 seg: la foto será el centro de los 2 seg del buffer
+                    if myo_listener and myo_listener.connected:
+                        data = myo_listener.get_snapshot()
+                    else:
+                        data = {'emg_timestamps': [], 'emg_channels': [[] for _ in range(8)],
+                                'imu_timestamps': [], 'orientation': [], 'accel': [], 'gyro': []}
+                    
+                    save_synchronized_sample(f, l, data, mode, count)
+
+                # 3. Lanzamos el guardado en un hilo para no congelar la cámara
                 counters[current_mode] += 1
-                frame_clean = cv2.resize(frame_original, (640, 480))
-                save_synchronized_sample(frame_clean, landmarks, myo_data, 
-                                        current_mode, counters[current_mode])
+                threading.Thread(target=save_with_delay, 
+                                 args=(frame_to_save, landmarks_to_save, current_mode, counters[current_mode]),
+                                 daemon=True).start()
+                
                 last_capture_time = current_time
             
             # Información en pantalla
@@ -444,7 +449,12 @@ if __name__ == "__main__":
             # Estado Myo
             myo_status = "✓ CONECTADO" if (myo_listener and myo_listener.connected) else "✗ DESCONECTADO"
             myo_color = (0, 255, 0) if (myo_listener and myo_listener.connected) else (0, 0, 255)
-            
+            # Obtener nivel de batería si está disponible
+            battery_text = f"Bateria: {myo_listener.battery_level}%" if (myo_listener and myo_listener.battery_level) else "Bateria: N/A"
+
+            # Dibujarlo en la pantalla (debajo del estado del Myo)
+            cv2.putText(frame_display, battery_text, (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+
             cv2.putText(frame_display, f"Modo: {current_mode.upper()}", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             cv2.putText(frame_display, f"Estado: {status_text}", (10, 60),
@@ -487,22 +497,21 @@ if __name__ == "__main__":
                     myo_listener.reset_buffers()
             elif key == ord('s') or key == ord('S'):
                 if hand_detected:
-                    if myo_listener and myo_listener.connected:
-                        myo_data = myo_listener.get_snapshot()
-                    else:
-                        myo_data = {
-                            'emg_timestamps': [],
-                            'emg_channels': [[] for _ in range(8)],
-                            'imu_timestamps': [],
-                            'orientation': [],
-                            'accel': [],
-                            'gyro': []
-                        }
+                    frame_to_save = cv2.resize(frame_original, (640, 480))
+                    landmarks_to_save = list(landmarks)
                     
+                    def manual_save_delayed(f, l, mode, count):
+                        time.sleep(1.0)
+                        data = myo_listener.get_snapshot() if myo_listener and myo_listener.connected else {
+                            'emg_timestamps': [], 'emg_channels': [[] for _ in range(8)],
+                            'imu_timestamps': [], 'orientation': [], 'accel': [], 'gyro': []
+                        }
+                        save_synchronized_sample(f, l, data, mode, count)
+
                     counters[current_mode] += 1
-                    frame_clean = cv2.resize(frame_original, (640, 480))
-                    save_synchronized_sample(frame_clean, landmarks, myo_data,
-                                            current_mode, counters[current_mode])
+                    threading.Thread(target=manual_save_delayed, 
+                                     args=(frame_to_save, landmarks_to_save, current_mode, counters[current_mode]),
+                                     daemon=True).start()
                 else:
                     print("⚠ No hay mano detectada")
             elif key == ord('d') or key == ord('D'):
