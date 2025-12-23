@@ -18,6 +18,7 @@ Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando Med
 ### Software
 - Python 3.11.9
 - Webcam funcional
+- MYO Armband
 - Sistema operativo: Windows, macOS, o Linux
 
 ### Librerías Principales
@@ -25,38 +26,6 @@ Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando Med
 mediapipe>=0.10.21
 opencv-python>=4.11.0
 numpy>=2.3.5
-```
-
----
-
-## Instalación
-
-### 1. Clonar/Descargar el proyecto
-```bash
-# en la carpeta de preferencia
-git clone https://github.com/IvanCG14/Deteccion-de-Gestos.git
-cd Getdata 
-```
-
-### 2. Crear entorno virtual (recomendado)
-```bash
-# Windows
-py -m venv venv
-.\venv\Scripts\activate
-
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Instalar dependencias
-```bash
-pip install mediapipe opencv-python numpy
-```
-
-O usando requirements.txt:
-```bash
-pip install -r requirements.txt
 ```
 
 **Archivo `requirements.txt`:**
@@ -73,8 +42,8 @@ numpy==1.23.5
 ```
 Getdata/
 │
-├── getdata_rsp.py          # Script principal
-├── requirements.txt            # Dependencias
+├── getdata_rsp.py              # Script para RGB y landmarks
+├── dataset_creator_myo.py      # Dataset de 4 ramas
 ├── README.md                   # Este archivo
 │
 └── dataset/                    # Carpeta generada automáticamente
@@ -96,8 +65,13 @@ Getdata/
 ## Uso
 
 ### Ejecutar el programa
+
 ```bash
-python getdata_rsp.py
+#solo RGB y landmarks
+python getdata_rsp.py 
+
+#RGB, Landmarks, EMG e IMU
+python dataset_creator_myo.py
 ```
 
 ### Controles del Teclado
@@ -110,6 +84,7 @@ python getdata_rsp.py
 | `4` | Modo NONE (sin gesto) |
 | `ESPACIO` | Iniciar/Pausar captura automática |
 | `S` | Capturar imagen individual |
+| `D` | ELIMINAR TODO el dataset |
 | `Q` | Salir del programa |
 
 ### Proceso Recomendado
@@ -135,22 +110,45 @@ python getdata_rsp.py
 
 ### Ejemplo de Sesión
 ```
-Rock...
-Paper...
-Scissors...
-Shoot!
+Controles:
+  1 - Modo ROCK
+  2 - Modo PAPER
+  3 - Modo SCISSORS
+  4 - Modo NONE (sin gesto)
+  ESPACIO - Iniciar/Pausar captura automática
+  S - Capturar una muestra individual
+  D - ELIMINAR TODO el dataset
+  Q - Salir
+
+Datos capturados por muestra:
+  ✓ Imagen de la mano
+  ✓ 21 landmarks de MediaPipe
+  ✓ 8 canales EMG del Myo
+  ✓ Datos IMU (orientación, aceleración, giroscopio)
 
 >>> Modo cambiado a: ROCK
 >>> Captura INICIADA
-✓ Guardado: rock #1
-✓ Guardado: rock #2
+✓ Muestra sincronizada guardada: rock #1
+  - Landmarks: 21 puntos
+  - EMG: 6 muestras
+  - IMU: 1 muestras
+✓ Muestra sincronizada guardada: rock #2
+  - Landmarks: 21 puntos
+  - EMG: 108 muestras
+  - IMU: 27 muestras
 ...
-✓ Guardado: rock #150
+✓ Muestra sincronizada guardada: rock #157
+  - Landmarks: 21 puntos
+  - EMG: 500 muestras
+  - IMU: 500 muestras
 >>> Captura PAUSADA
 
 >>> Modo cambiado a: PAPER
 >>> Captura INICIADA
-✓ Guardado: paper #1
+✓ Muestra sincronizada guardada: paper #1
+  - Landmarks: 21 puntos
+  - EMG: 6 muestras
+  - IMU: 1 muestras
 ...
 ```
 
@@ -188,8 +186,10 @@ MediaPipe detecta **21 puntos** en la mano:
 
 ### Estructura de la Mano
 ![Marcadores_Mano](imgs/hand-landmarks.png)
+
 Derecha:
 ![Mano_der](imgs/der.png)
+
 Izquierda:
 ![Mano_izq](imgs/izq.png)
 
