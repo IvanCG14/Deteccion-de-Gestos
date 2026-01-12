@@ -1,21 +1,15 @@
-# Deteccion-de-Gestos
-
-## Modelo Multimodal
-
 # Sistema de Reconocimiento de Gestos Multimodal
 
-Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando Deep Learning multimodal que fusiona imágenes RGB y landmarks 3D de MediaPipe.
+Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando Deep Learning multimodal que fusiona imágenes RGB y landmarks 3D de MediaPipe, complementado con datos del brazalete Myo Armband.
 
 ## 📋 Tabla de Contenidos
 
 - [Descripción](#descripción)
-- [Características](#características)
 - [Requisitos del Sistema](#requisitos-del-sistema)
-- [Instalación](#instalación)
+- [Scripts de Utilidad](#scripts-de-utilidad)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Uso](#uso)
+- [Entrenamiento](#entrenamiento)
 - [Arquitectura del Modelo](#arquitectura-del-modelo)
-- [Resultados](#resultados)
 - [Troubleshooting](#troubleshooting)
 ---
 
@@ -29,65 +23,20 @@ El sistema alcanza **100% de accuracy** en el conjunto de test con 4 clases de g
 
 ---
 
-## Características
-
-- ✅ **Modelo Multimodal**: Fusión de RGB + Skeleton 3D
-- ✅ **Transfer Learning**: ResNet-18 preentrenado en ImageNet
-- ✅ **Manejo de Desbalance**: Class weighting automático
-- ✅ **Pipeline Completo**: Desde datos crudos hasta modelo entrenado
-- ✅ **Visualizaciones**: Gráficas de entrenamiento y matriz de confusión
-- ✅ **Checkpoints**: Guardado automático del mejor modelo
-- ✅ **Reproducibilidad**: Seeds fijadas para resultados consistentes
-
----
-
 ## Requisitos del Sistema
 
-### Hardware
+#### Hardware
 - **Mínimo**: CPU (funcional pero lento ~2 min/epoch)
 - **Recomendado**: GPU NVIDIA con CUDA (10x más rápido)
 - **RAM**: 8GB mínimo, 16GB recomendado
 - **Almacenamiento**: ~2GB para dataset + modelos
 
-### Software
+#### Software
 - **Sistema Operativo**: Windows 10/11, Linux, macOS
 - **Python**: 3.8 - 3.11 (recomendado 3.10)
 - **CUDA** (opcional): 11.8+ para aceleración GPU
 
----
-
-## Instalación
-
-### Paso 1: Clonar el Repositorio
-
-```bash
-git clone https://github.com/IvanCG14/Deteccion-de-Gestos.git
-```
-
-### Paso 2: Crear Entorno Virtual
-
-**Windows:**
-```bash
-py -m venv venv
-.\venv\Scripts\activate
-```
-
-**Linux/macOS:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### Paso 3: Instalar Dependencias
-
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
----
-
-## 📄 requirements.txt
+#### 📄 requirements.txt
 
 ```txt
 # Core Deep Learning
@@ -114,227 +63,161 @@ tqdm==4.67.1  # Barras de progreso durante entrenamiento
 
 ---
 
+## Scripts de Utilidad
+
+Dentro de la carpeta ```utils```, se encuentran herramientas diseñadas para pruebas de hardware, validación de visión por computadora y preparación de datos:
+
+**1. ```funtion_karen.py``` (Prueba de Myo Armband):**
+
+- **Propósito:** Verificar la conexión con el brazalete Myo y asegurar que el sistema esté recibiendo correctamente las señales de EMG (electromiografía) e IMU (inerciales).
+- **Uso:** Ejecutar para diagnosticar problemas de conectividad o latencia con el sensor Myo.
+
+**2. ```manos.py``` (Detección de Landmarks):**
+
+- **Propósito:** Validar que la cámara sea reconocida correctamente y que el modelo de MediaPipe esté detectando los 21 puntos clave (landmarks) de la mano de forma fluida.
+- **Uso:** Ideal para calibrar la iluminación y el encuadre de la cámara antes de capturar datos.
+
+**3. ```rsp.py``` (Lógica Base Piedra, Papel o Tijera):**
+
+- **Propósito:** Implementa la lógica algorítmica inicial para reconocer los gestos de Piedra, Papel y Tijera basándose en la posición de los dedos.
+- **Importancia:** Este código sirve como motor fundamental para el sistema de etiquetado automático y la creación de nuevos datasets para el entrenamiento del modelo neuronal.
+
+---
+
 ## Estructura del Proyecto
 
 ```
 modelo/
 │
-├── dataset/                          # Dataset de gestos
-│   ├── images/                       # Imágenes RGB organizadas por clase
-│   │   ├── none/
-│   │   │   ├── none_0001.jpg
-│   │   │   └── ...
-│   │   ├── paper/
-│   │   │   ├── paper_0001.jpg
-│   │   │   └── ...
-│   │   ├── rock/
-│   │   │   ├── rock_0001.jpg
-│   │   │   └── ...
-│   │   └── scissors/
-│   │       ├── scissors_0001.jpg
-│   │       └── ...
-│   │
-│   └── landmarks/                    # CSVs con coordenadas 3D (MediaPipe)
-│       ├── none_landmarks.csv
-│       ├── paper_landmarks.csv
-│       ├── rock_landmarks.csv
-│       └── scissors_landmarks.csv
+├── utils/
+│   ├── funtion_karen.py   # Diagnóstico de datos Myo
+│   ├── manos.py           # Test de detección de cámara
+│   └── rsp.py             # Lógica base de gestos y recolección
+├── model_training.ipynb   # Notebook de entrenamiento
+├── multimodal_myo_model.py # Definición de la arquitectura del modelo
+├── myo_dataset_explore.ipynb # Análisis exploratorio de datos
+├── requirements.txt       # Dependencias del proyecto
+├── README.md              # Documentación
 │
-├── results/                          # Resultados de entrenamiento
-│   ├── best_model.pth               # Mejor modelo guardado
-│   ├── results.png                  # Gráficas de loss/accuracy
-│   └── confusion_matrix.png         # Matriz de confusión
+├── dataset/               # Dataset de gestos, debe estar al mismo nivel que el archivo de entrenamiento
+│   ├── images/                 # Imágenes (Rock/Paper/Scissors/None)
+│   ├── landmarks/              # CSV de puntos clave y archivos JSON de metadata
+│   ├── emg/                    # CSV con los 8 canales de señales musculares (solo Myo)
+│   └── imu/                    # CSV con orientación y aceleración (solo Myo)
 │
-├── RSP_model.ipynb
-├── requirements.txt                  # Dependencias del proyecto
-├── README.md                         # Este archivo
-└── .gitignore                        # Archivos a ignorar en Git
+├── best_model_synchronized.pth               # Mejor modelo guardado
+├── results_synchronized.png                  # Gráficas de loss/accuracy
+└── confusion_matrix.png         # Matriz de confusión
+
 ```
 
 ---
 
-## Uso
+## Entrenamiento
 
-### 1. Preparar el Dataset
+Esta sección detalla el flujo de trabajo para entrenar el modelo de clasificación de gestos utilizando fusión multimodal (Visión + Bioseñales).
 
-Asegúrate de tener la estructura correcta:
+#### 1. Preparar el Dataset
+El script de entrenamiento requiere una estructura de datos sincronizada. Asegúrate de que tu carpeta `dataset/` contenga el archivo maestro de metadatos:
 
-```
-dataset/
-├── images/
-│   └── [clase]/[imagen].jpg
-└── landmarks/
-    └── [clase]_landmarks.csv
-```
+* **Imágenes:** Fotos en formato `.jpg` organizadas por clase.
+* **EMG/IMU:** Archivos `.csv` con las señales del brazalete.
 
-**Formato del CSV de landmarks:**
-```csv
-image_file,label,x0,y0,z0,x1,y1,z1,...,x20,y20,z20
-dataset/images/rock/rock_0001.jpg,rock,100,200,0,105,210,5,...
-```
-- 1 fila = 1 imagen
-- Columnas: `image_file`, `label`, 63 coordenadas (21 landmarks × 3)
+#### 2. Configuración del Notebook
+En el archivo `model_training.ipynb`, el entrenamiento está configurado con los siguientes parámetros por defecto:
 
-### 2. Configurar Hiperparámetros
+* **Arquitectura:** Red neuronal híbrida (CNN para imágenes + MLP para sensores).
+* **Resolución de Imagen:** `128x128` píxeles.
+* **Batch Size:** `16`
+* **Épocas:** `50` (con guardado automático del mejor modelo).
+* **Optimizador:** Adam con `Learning Rate = 1e-4` y scheduler de coseno.
 
-Edita `run_training.py`:
+#### 3. Ejecución
+Para iniciar el proceso en tu entorno de Jupyter local:
 
-```python
-CONFIG = {
-    'landmarks_dir': 'dataset/landmarks',  # Ruta a CSVs
-    'base_path': '',                       # Path base (si rutas son relativas)
-    'batch_size': 16,                      # Ajustar según RAM/GPU
-    'epochs': 30,                          # Número de epochs
-    'learning_rate': 1e-4,                 # Learning rate
-    'img_size': (224, 224),                # Resolución de imágenes
-    'num_workers': 0,                      # Workers (0 para Windows)
-    'device': 'cuda',                      # 'cuda' o 'cpu'
-    'classes': ['none', 'paper', 'rock', 'scissors']
-}
-```
+1. Abre el notebook `model_training.ipynb`.
+2. Ejecuta la celda de carga de datos para verificar que el `base_path` sea correcto.
+3. Inicia el entrenamiento ejecutando la celda principal (`train()`). 
 
-### 3. Entrenar el Modelo
+El script dividirá automáticamente tus muestras en:
+- **80%** Entrenamiento.
+- **10%** Validación (para control de sobreajuste).
+- **10%** Test (evaluación final).
 
-```bash
-python RSP_model.ipynb #bloque entrenamiento
-```
+#### 4. Salida de Resultados
+Una vez finalizado el entrenamiento, el sistema genera automáticamente dos archivos en la raíz del proyecto:
 
-**Salida esperada:**
-```
-============================================================
-CARGANDO DATOS
-============================================================
-  Cargado: none_landmarks.csv (93 muestras)
-  Cargado: paper_landmarks.csv (196 muestras)
-  Cargado: rock_landmarks.csv (207 muestras)
-  Cargado: scissors_landmarks.csv (55 muestras)
+1.  **`best_model_synchronized.pth`**: El archivo con los pesos del modelo que obtuvo el mejor desempeño en validación.
+2.  **`results_synchronized.png`**: Un panel gráfico que resume todo el entrenamiento.
 
-Total: 551 muestras
-Train: 385 | Val: 83 | Test: 83
 
-============================================================
-ENTRENANDO (30 epochs)
-============================================================
-Epoch 1/30: 100%|██████████| 24/24 [01:26<00:00]
-  Train: loss=1.0384, acc=0.5417 | Val: loss=0.7547, acc=0.8250
-  ✓ Mejor modelo guardado (acc: 0.8250)
 
-...
+#### 5. Verificación de Métricas
+Al final del entrenamiento, el notebook despliega un reporte detallado. Puedes verificar la precisión por clase (Precision, Recall y F1-Score) para confirmar que el modelo no tiene sesgos:
 
+```text
 ============================================================
 EVALUACIÓN FINAL (TEST SET)
 ============================================================
-✓ Test Accuracy: 1.0000 (100.0%)
+✓ Test Accuracy: 0.9820 (98.2%)
 
               precision    recall  f1-score   support
-        none       1.00      1.00      1.00        14
-       paper       1.00      1.00      1.00        30
-        rock       1.00      1.00      1.00        31
-    scissors       1.00      1.00      1.00         8
-```
-
-### 4. Visualizar Resultados
-
-Después del entrenamiento se generan:
-- `best_model.pth`: Mejor modelo (usar para inferencia)
-- `results.png`: Gráficas de loss y accuracy
-- `confusion_matrix.png`: Matriz de confusión del test set
-
-```python
-from PIL import Image
-img = Image.open('results.png')
-img.show()
+        none       1.00      1.00      1.00        20
+       paper       0.97      0.98      0.97        25
+        rock       0.98      0.96      0.97        28
+    scissors       1.00      1.00      1.00        10
 ```
 
 ---
 
 ## Arquitectura del Modelo
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                  MULTIMODAL MODEL                       │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  RGB BRANCH              SKELETON BRANCH                │
-│  ───────────             ────────────────               │
-│  Input: (3,224,224)      Input: (63,)                   │
-│     │                         │                         │
-│     ▼                         ▼                         │
-│  ResNet-18              Linear(63→128)                  │
-│  (ImageNet)             BatchNorm + ReLU                │
-│     │                   Dropout(0.3)                    │
-│     ▼                         │                         │
-│  Linear(512→256)        Linear(128→256)                 │
-│  BatchNorm + ReLU       BatchNorm + ReLU                │
-│  Dropout(0.3)           Dropout(0.3)                    │
-│     │                         │                         │
-│     ▼                         ▼                         │
-│  Features (256)         Linear(256→256)                 │
-│     │                   BatchNorm + ReLU                │
-│     │                         │                         │
-│     └──────────┬──────────────┘                         │
-│                │                                        │
-│                ▼                                        │
-│          Concatenate (512)                              │
-│                │                                        │
-│                ▼                                        │
-│         Linear(512→256)                                 │
-│         BatchNorm + ReLU                                │
-│         Dropout(0.3)                                    │
-│                │                                        │
-│                ▼                                        │
-│         Linear(256→4)                                   │
-│                │                                        │
-│                ▼                                        │
-│    [none, paper, rock, scissors]                        │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+El sistema utiliza una arquitectura de fusión multimodal diseñada para procesar diferentes tipos de señales en paralelo antes de combinarlas para la clasificación final:
 
-**Parámetros Totales:** ~11.5M
-- ResNet-18: ~11M
-- MLP Skeleton: ~300K
-- Fusion + Classifier: ~200K
+<p align="center">
+  <img src="imgs/diagrama_arquitectura.png" alt="Diagrama de la Arquitectura del Modelo" width="400">
+  <br>
+  <em>Diagrama de flujo de datos y fusión de modalidades.</em>
+</p>
 
----
+#### Componentes Principales:
+* **Rama RGB:** Utiliza una **ResNet-18** preentrenada como extractor de características para capturar la información espacial y visual del gesto desde la cámara.
+* **Rama Landmarks:** Un Perceptrón Multicapa (**MLP**) que procesa las 21 coordenadas 3D (x, y, z) de la mano proporcionadas por MediaPipe.
+* **Integración Myo:** Estructura preparada para procesar señales temporales de **EMG e IMU** a través de capas recurrentes (LSTM), permitiendo una clasificación robusta incluso en condiciones de baja iluminación.
+* **Capa de Fusión:** Las características de todas las ramas se concatenan y pasan por capas densas finales para predecir la probabilidad de cada gesto (Piedra, Papel, Tijera o Ninguno).
 
-## Resultados
+### 🖼️ Data Augmentation
 
-### Métricas de Desempeño
+Para evitar el sobreajuste (overfitting) y mejorar la robustez del modelo multimodal, aplicamos técnicas de aumento de datos diferenciadas por rama y una estrategia de mezcla global (**Mixup**).
 
-| Conjunto | Loss | Accuracy |
-|----------|------|----------|
-| Train | 0.0102 | 100.0% |
-| Val | 0.0054 | 100.0% |
-| **Test** | **-** | **100.0%** ✓ |
+#### Aumento de Datos por Rama
 
-### Métricas por Clase (Test Set)
+| Rama | Técnica Aplicada | Propósito del Augmentation |
+| :--- | :--- | :--- |
+| **Visual (RGB)** | `RandomRotation` + `ColorJitter` | Simula variaciones en el ángulo de la cámara y cambios drásticos de iluminación. |
+| **Visual (RGB)** | `RandomHorizontalFlip` | Permite que el modelo reconozca gestos tanto de la mano derecha como de la izquierda. |
+| **Landmarks** | `Gaussian Noise` (Opcional) | Añade pequeñas variaciones a las coordenadas (x, y) para tolerar errores de detección de MediaPipe. |
+| **Sensores (EMG/IMU)** | `Time Shifting` | Desplaza ligeramente la ventana de tiempo de las señales para que el modelo no dependa de un inicio exacto del gesto. |
 
-| Clase | Precision | Recall | F1-Score | Support |
-|-------|-----------|--------|----------|---------|
-| none | 1.00 | 1.00 | 1.00 | 14 |
-| paper | 1.00 | 1.00 | 1.00 | 30 |
-| rock | 1.00 | 1.00 | 1.00 | 31 |
-| scissors | 1.00 | 1.00 | 1.00 | 8 |
+### 🔀 Estrategia Mixup (Fusión de Muestras)
 
-### Tiempo de Entrenamiento
+El notebook implementa Mixup, una técnica de regularización que combina dos muestras aleatorias del dataset durante el entrenamiento para crear una "muestra sintética".
 
-- **CPU (Intel i7)**: ~2 min/epoch → 60 min total (30 epochs)
-- **GPU (NVIDIA RTX 3060)**: ~15 seg/epoch → 7.5 min total (30 epochs)
+**¿Cómo funciona?** Si tenemos una muestra de "Piedra" y otra de "Papel", el Mixup crea una imagen y unas señales de sensores que son una combinación lineal de ambas (por ejemplo, 70% Piedra y 30% Papel).
 
-### Comparación con Baselines
+**Beneficios para este proyecto:**
 
-| Método | Test Accuracy |
-|--------|---------------|
-| RGB Only (ResNet-18) | ~95% (estimado) |
-| Skeleton Only (MLP) | ~90% (estimado) |
-| **Multimodal (Ours)** | **100%** ✓ |
+1. **Suavizado de fronteras:** Obliga al modelo a no ser "demasiado seguro" de sus predicciones, lo que mejora la generalización.
+2. **Robustez Multimodal**: Ayuda a que las ramas de sensores y visión se alineen incluso cuando las señales son ruidosas.
+3. **Estabilidad:** Reduce significativamente las oscilaciones en la curva de pérdida (Loss) durante las últimas épocas.
+
+**Nota:** El Mixup solo se aplica durante el **entrenamiento**. Para la validación y el test, las muestras se mantienen puras para obtener una evaluación real del desempeño.
 
 ---
 
 ## Troubleshooting
 
-### Problema 1: `RuntimeError: Expected more than 1 value per channel when training`
+#### Problema 1: `RuntimeError: Expected more than 1 value per channel when training`
 
 **Causa:** Batch de tamaño 1 con BatchNorm en modo training.
 
@@ -344,7 +227,7 @@ img.show()
 train_loader = DataLoader(..., drop_last=True)
 ```
 
-### Problema 2: `CUDA out of memory`
+#### Problema 2: `CUDA out of memory`
 
 **Causa:** GPU sin memoria suficiente.
 
@@ -353,7 +236,7 @@ train_loader = DataLoader(..., drop_last=True)
 2. Usar CPU: `CONFIG['device'] = 'cpu'`
 3. Usar modelo más pequeño (cambiar ResNet-18 por MobileNetV3)
 
-### Problema 3: `ModuleNotFoundError: No module named 'torch'`
+#### Problema 3: `ModuleNotFoundError: No module named 'torch'`
 
 **Causa:** Dependencias no instaladas.
 
@@ -365,7 +248,7 @@ pip install torch torchvision
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ```
 
-### Problema 4: Accuracy no mejora (se queda en ~25%)
+#### Problema 4: Accuracy no mejora (se queda en ~25%)
 
 **Causa:** Modelo no está aprendiendo.
 
@@ -375,7 +258,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 3. Desactivar pesos de clase temporalmente
 4. Revisar normalización de landmarks
 
-### Problema 5: Overfitting (Train acc=100%, Val acc=60%)
+#### Problema 5: Overfitting (Train acc=100%, Val acc=60%)
 
 **Causa:** Modelo memoriza train set.
 
@@ -384,20 +267,6 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 2. Más data augmentation
 3. Early stopping más agresivo
 4. Reducir complejidad del modelo
-
----
-
-## Referencias
-
-### Papers
-- He, K., et al. (2016). "Deep Residual Learning for Image Recognition". CVPR.
-- Ioffe, S., & Szegedy, C. (2015). "Batch Normalization". ICML.
-- Baltrusaitis, T., et al. (2018). "Multimodal Machine Learning: A Survey". IEEE TPAMI.
-
-### Código Base
-- PyTorch: https://pytorch.org/
-- TorchVision: https://pytorch.org/vision/
-- MediaPipe: https://google.github.io/mediapipe/
 
 ---
 
@@ -411,49 +280,4 @@ Las contribuciones son bienvenidas. Para cambios grandes:
 5. Abre un Pull Request
 
 ---
-
-## Data augmentation
-
-El Aumento de Datos previene el sobreajuste (overfitting) al simular variaciones del mundo real y hacer el modelo más robusto a cambios en la captura (iluminación, ángulo, tamaño).
-
-Bloque de data augmentation:
-```python
-# ============================================
-# 4. DATA AUGMENTATION
-# ============================================
-
-def get_train_transforms(img_size: Tuple[int, int] = (224, 224)):
-    """Transformaciones con augmentation para entrenamiento"""
-    return transforms.Compose([
-        transforms.Resize((int(img_size[0] * 1.1), int(img_size[1] * 1.1))),
-        transforms.RandomCrop(img_size),
-        transforms.RandomHorizontalFlip(p=0.3),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
-        transforms.RandomRotation(degrees=15),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                           std=[0.229, 0.224, 0.225])
-    ])
-
-def get_val_transforms(img_size: Tuple[int, int] = (224, 224)):
-    """Transformaciones sin augmentation para val/test"""
-    return transforms.Compose([
-        transforms.Resize(img_size),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                           std=[0.229, 0.224, 0.225])
-    ])
-```
-
-![Augmentation](imgs/dataset_samples.png)
-
-### Transformaciones Aplicadas (Rama RGB)
-
-#### Transformación: Propósito
-- Resize + RandomCrop: Simula variaciones en el zoom y la posición del gesto.
-- RandomHorizontalFlip: Enseña a reconocer el gesto independientemente de la lateralidad (mano izquierda/derecha).
-- ColorJitter:"Simula cambios en las condiciones de iluminación (brillo, contraste, saturación)."
-- RandomRotation: Acepta ligeros cambios en el ángulo o inclinación de la cámara/mano.
-- Normalize: Estandariza la imagen con los valores de ImageNet para compatibilidad con ResNet-18.
-
 
