@@ -133,11 +133,14 @@ En el archivo `model_training.ipynb`, el entrenamiento está configurado con los
 * **Optimizador:** Adam con `Learning Rate = 1e-4` y scheduler de coseno.
 
 #### 3. Ejecución
-Para iniciar el proceso en tu entorno de Jupyter local:
+Para iniciar el proceso en tu entorno de Jupyter:
 
-1. Abre el notebook `model_training.ipynb`.
-2. Ejecuta la celda de carga de datos para verificar que el `base_path` sea correcto.
-3. Inicia el entrenamiento ejecutando la celda principal (`train()`). 
+1. Activa tu environment.
+2. Dirígete a la carpeta con el comando `cd ../../Deteccion-de-Gestos/modelo`
+3. Ejecuta `jupyter notebook`
+4. Abre el notebook `model_training.ipynb`
+5. Ejecuta la celda de carga de datos para verificar que el `base_path` sea correcto.
+6. Inicia el entrenamiento ejecutando la celda principal (`train()`). 
 
 El script dividirá automáticamente tus muestras en:
 - **80%** Entrenamiento.
