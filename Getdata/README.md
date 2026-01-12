@@ -1,10 +1,10 @@
-# 📸 Hand Gesture Dataset Creator
+# 📸 Hand Gesture Dataset Creator (Multi-Modal)
 
-Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando MediaPipe y OpenCV, con extracción automática de landmarks en formato CSV.
+Sistema dual para la creación de datasets de gestos de mano (Rock, Paper, Scissors). Permite capturar datos únicamente visuales o sincronizarlos con bioseñales del brazalete MYO Armband.
 
 ## 📋 Tabla de Contenidos
+- [Descripción de los Scripts](#descripción-de-los-scripts)
 - [Requisitos](#requisitos)
-- [Instalación](#instalación)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Uso](#uso)
 - [Formato de Datos](#formato-de-datos)
@@ -13,20 +13,27 @@ Sistema para crear datasets de gestos de mano (Rock, Paper, Scissors) usando Med
 
 ---
 
+## Descripción de los Scripts
+El proyecto cuenta con dos herramientas principales según el nivel de datos requerido:
+
+**1. ```getdata_rsp.py``` (Básico):**
+- **Enfoque:** Visión artificial pura.
+- **Captura:** Imágenes RGB (.jpg) y coordenadas de la mano (.csv).
+- **Ideal para:** Modelos de clasificación de imágenes o redes neuronales basadas en puntos clave (landmarks).
+
+**2. ```dataset_creator_myo.py``` (Avanzado - Multimodal):**
+- **Enfoque:** Fusión de sensores.
+- **Captura:** Imágenes + Landmarks + Datos EMG (electromiografía) + Datos IMU (acelerómetro, giroscopio y orientación).
+- **Sincronización:** Utiliza un sistema de hilos para capturar una "ventana" de datos del brazalete alrededor del momento de la foto.
+- **Ideal para:** Modelos híbridos que combinan visión con señales musculares y de movimiento.
+
 ## Requisitos
 
-### Software
+#### Software
 - Python 3.11.9
 - Webcam funcional
-- MYO Armband
+- MYO Armband SDK
 - Sistema operativo: Windows, macOS, o Linux
-
-### Librerías Principales
-```
-mediapipe>=0.10.21
-opencv-python>=4.11.0
-numpy>=2.3.5
-```
 
 **Archivo `requirements.txt`:**
 ```
@@ -42,39 +49,32 @@ numpy==1.23.5
 ```
 Getdata/
 │
-├── getdata_rsp.py              # Script para RGB y landmarks
-├── dataset_creator_myo.py      # Dataset de 4 ramas
-├── README.md                   # Este archivo
-│
-└── dataset/                    # Carpeta generada automáticamente
-    ├── images/                 # Imágenes capturadas
-    │   ├── rock/              # Imágenes de "piedra"
-    │   ├── paper/             # Imágenes de "papel"
-    │   ├── scissors/          # Imágenes de "tijeras"
-    │   └── none/              # Otros gestos
-    │
-    └── landmarks/             # Coordenadas en CSV
-        ├── rock_landmarks.csv
-        ├── paper_landmarks.csv
-        ├── scissors_landmarks.csv
-        └── none_landmarks.csv
+├── getdata_rsp.py              # Script solo RGB y landmarks
+├── dataset_creator_myo.py      # Script Multimodal (RGB + EMG + IMU)
+├── MYO_armband_SDK/            # Carpeta con el SDK oficial de Myo
+└── dataset/                    # Generado automáticamente
+    ├── images/                 # Imágenes (Rock/Paper/Scissors/None)
+    ├── landmarks/              # CSV de puntos clave y archivos JSON de metadata
+    ├── emg/                    # CSV con los 8 canales de señales musculares (solo Myo)
+    └── imu/                    # CSV con orientación y aceleración (solo Myo)
 ```
 
 ---
 
 ## Uso
 
-### Ejecutar el programa
+#### Ejecutar el programa
 
+Para iniciar la captura, elige el script según tu hardware disponible:
 ```bash
-#solo RGB y landmarks
+# Opción A: Solo cámara
 python getdata_rsp.py 
 
-#RGB, Landmarks, EMG e IMU
+# Opción B: Cámara + Myo Armband conectado
 python dataset_creator_myo.py
 ```
 
-### Controles del Teclado
+#### Controles del Teclado
 
 | Tecla | Función |
 |-------|---------|
@@ -84,107 +84,35 @@ python dataset_creator_myo.py
 | `4` | Modo NONE (sin gesto) |
 | `ESPACIO` | Iniciar/Pausar captura automática |
 | `S` | Capturar imagen individual |
-| `D` | ELIMINAR TODO el dataset |
-| `Q` | Salir del programa |
-
-### Proceso Recomendado
-
-1. **Inicia el programa**
-   ```bash
-   python getdata_rsp.py
-   ```
-
-2. **Selecciona el gesto** (presiona 1, 2, 3, o 4)
-
-3. **Inicia la captura automática** (presiona ESPACIO)
-
-4. **Mueve tu mano** en diferentes:
-   - Ángulos (horizontal, vertical, diagonal)
-   - Posiciones (cerca, lejos, izquierda, derecha)
-   - Rotaciones (palm up, palm down, lateral)
-   - Distancias a la cámara
-
-5. **Captura 100-200 imágenes** por gesto
-
-6. **Repite** para cada gesto (rock, paper, scissors)
-
-### Ejemplo de Sesión
-```
-Controles:
-  1 - Modo ROCK
-  2 - Modo PAPER
-  3 - Modo SCISSORS
-  4 - Modo NONE (sin gesto)
-  ESPACIO - Iniciar/Pausar captura automática
-  S - Capturar una muestra individual
-  D - ELIMINAR TODO el dataset
-  Q - Salir
-
-Datos capturados por muestra:
-  ✓ Imagen de la mano
-  ✓ 21 landmarks de MediaPipe
-  ✓ 8 canales EMG del Myo
-  ✓ Datos IMU (orientación, aceleración, giroscopio)
-
->>> Modo cambiado a: ROCK
->>> Captura INICIADA
-✓ Muestra sincronizada guardada: rock #1
-  - Landmarks: 21 puntos
-  - EMG: 6 muestras
-  - IMU: 1 muestras
-✓ Muestra sincronizada guardada: rock #2
-  - Landmarks: 21 puntos
-  - EMG: 108 muestras
-  - IMU: 27 muestras
-...
-✓ Muestra sincronizada guardada: rock #157
-  - Landmarks: 21 puntos
-  - EMG: 500 muestras
-  - IMU: 500 muestras
->>> Captura PAUSADA
-
->>> Modo cambiado a: PAPER
->>> Captura INICIADA
-✓ Muestra sincronizada guardada: paper #1
-  - Landmarks: 21 puntos
-  - EMG: 6 muestras
-  - IMU: 1 muestras
-...
-```
+| `D` | **ELIMINAR TODO** el dataset |
+| `Q` | Salir del programa de forma segura|
 
 ---
 
 ## Formato de Datos
 
-### Imágenes
-- **Formato:** JPG
-- **Resolución:** 640x480 píxeles
-- **Nomenclatura:** `{gesto}_{número:04d}.jpg`
-- **Ejemplo:** `rock_0001.jpg`, `paper_0042.jpg`
+#### Imágenes y Landmarks (Ambos scripts)
+- **Imágenes:** JPG 640x480 sin marcas de dibujo para entrenamiento limpio.
+- **Landmarks:** Archivos CSV con 21 puntos (x, y, z) mapeados por MediaPipe.
 
-### CSV de Landmarks
-
-Cada archivo CSV contiene las coordenadas 3D de 21 puntos de la mano:
-
-```csv
-image_file,label,x0,y0,z0,x1,y1,z1,...,x20,y20,z20
-dataset/images/rock/rock_0001.jpg,rock,320,240,0,350,220,5,...,280,180,10
-```
-
-**Columnas:**
-- `image_file`: Ruta de la imagen
-- `label`: Etiqueta del gesto (rock/paper/scissors/none)
-- `x0-x20`: Coordenada X de cada landmark (píxeles)
-- `y0-y20`: Coordenada Y de cada landmark (píxeles)
-- `z0-z20`: Coordenada Z de cada landmark (profundidad relativa)
+#### Datos de Sensores (Solo dataset_creator_myo.py)
+- **EMG:** Archivo CSV por muestra con los valores de los 8 sensores del brazalete.
+- **IMU:** Datos de aceleración, giroscopio y cuaterniones de orientación.
+- **Metadata (JSON):** Archivo que vincula todos los componentes (imagen, emg, imu) de una misma muestra para facilitar el entrenamiento multimodal.
 
 ---
 
 ## Landmarks de MediaPipe
 
-MediaPipe detecta **21 puntos** en la mano:
+El sistema detecta **21 puntos** clave por mano, permitiendo entender la estructura ósea del gesto:
 
-### Estructura de la Mano
+| Índice | Nombre | Descripción | 
+|--------|--------|-------------|
+| 0 |  WRIST | Muñeca (Punto base) | 
+| 4, 8, 12, 16, 20 |  TIPS | Puntas de los dedos (Pulgar a Meñique) | 
+| 5, 9, 13, 17 | MCP | Nudillos principales | 
+
+#### Estructura de la Mano
 ![Marcadores_Mano](imgs/hand-landmarks.png)
 
 Derecha:
@@ -193,60 +121,20 @@ Derecha:
 Izquierda:
 ![Mano_izq](imgs/izq.png)
 
-### Índices de Landmarks
-
-| Índice | Nombre | Descripción |
-|--------|--------|-------------|
-| 0 | WRIST | Muñeca |
-| 1 | THUMB_CMC | Base del pulgar |
-| 2 | THUMB_MCP | Nudillo del pulgar |
-| 3 | THUMB_IP | Articulación del pulgar |
-| 4 | THUMB_TIP | Punta del pulgar |
-| 5 | INDEX_FINGER_MCP | Nudillo del índice |
-| 6 | INDEX_FINGER_PIP | Articulación media del índice |
-| 7 | INDEX_FINGER_DIP | Articulación distal del índice |
-| 8 | INDEX_FINGER_TIP | Punta del índice |
-| 9 | MIDDLE_FINGER_MCP | Nudillo del medio |
-| 10 | MIDDLE_FINGER_PIP | Articulación media del medio |
-| 11 | MIDDLE_FINGER_DIP | Articulación distal del medio |
-| 12 | MIDDLE_FINGER_TIP | Punta del medio |
-| 13 | RING_FINGER_MCP | Nudillo del anular |
-| 14 | RING_FINGER_PIP | Articulación media del anular |
-| 15 | RING_FINGER_DIP | Articulación distal del anular |
-| 16 | RING_FINGER_TIP | Punta del anular |
-| 17 | PINKY_MCP | Nudillo del meñique |
-| 18 | PINKY_PIP | Articulación media del meñique |
-| 19 | PINKY_DIP | Articulación distal del meñique |
-| 20 | PINKY_TIP | Punta del meñique |
-
-### Mapeo de Nomenclatura
-
-```
-P1, P2 = Pulgar (Thumb)
-I1, I2, I3 = Índice (Index)
-M1, M2, M3 = Medio (Middle)
-A1, A2, A3 = Anular (Ring)
-E1, E2 = Meñique (Pinky)
-R, C, U = Muñeca (Wrist)
-```
-
 ---
 
 ## Recomendaciones para un Buen Dataset
 
-### Cantidad de Datos
+**1. Frecuencia de captura:** El script multimodal tiene un intervalo de 2 segundos para permitir que el buffer de datos EMG se llene correctamente. No muevas la mano demasiado rápido.
+
+**2. Calibración Myo:** Asegúrate de que el Myo esté bien ajustado al antebrazo y "calentado" (conecta y espera a que los datos fluyan) antes de iniciar la captura masiva.
+
+**3. Diversidad:** Captura gestos con la palma hacia arriba, hacia abajo y de lado.
+
+#### Cantidad de Datos
 - **Mínimo:** 100 imágenes por clase
 - **Recomendado:** 200-300 imágenes por clase
 - **Óptimo:** 500+ imágenes por clase
-
-### Variedad
-✅ **SÍ hacer:**
-- Diferentes ángulos de la mano
-- Diferentes distancias a la cámara
-- Diferentes rotaciones (palm up, down, lateral)
-- Diferentes posiciones en el encuadre
-- Diferentes iluminaciones (si es posible)
-- Ambas manos (izquierda y derecha)
 
 ❌ **NO hacer:**
 - Motion blur (movimientos muy rápidos)
@@ -254,7 +142,7 @@ R, C, U = Muñeca (Wrist)
 - Dedos ocultos u ocluidos
 - Iluminación muy baja (mano no visible)
 
-### Balance del Dataset
+#### Balance del Dataset
 Intenta tener un número similar de imágenes en cada clase:
 ```
 Rock:     250 imágenes
@@ -267,46 +155,38 @@ None:     240 imágenes (opcional)
 
 ## Solución de Problemas
 
-### Error: "No module named 'mediapipe'"
+#### Error: "No module named 'mediapipe'"
 ```bash
 pip install mediapipe opencv-python
 ```
 
-### Error: "Can't open camera"
+#### Error: "Can't open camera"
 - Verifica que tu webcam esté conectada
 - Cierra otras aplicaciones que usen la cámara (Zoom, Teams, etc.)
 - En Linux, verifica permisos: `sudo usermod -a -G video $USER`
 
-### La mano no se detecta
+#### La mano no se detecta
 - Mejora la iluminación
 - Acerca más la mano a la cámara
 - Asegúrate de que toda la mano esté visible
 - Prueba con un fondo menos complejo
 
-### Imágenes borrosas
+#### Imágenes borrosas
 - Reduce la velocidad de movimiento de la mano
 - Mantén la mano más estable
 - Mejora la iluminación
 
-### El programa está lento
+#### El programa está lento
 - Cierra otras aplicaciones
 - Verifica que tienes buena CPU (MediaPipe es intensivo)
 - Reduce la resolución en el código si es necesario
 
 ---
 
-## 📝 Licencia
+### 📝 Licencia
 
 Este proyecto es de código abierto para uso educativo y de investigación.
 
 ---
 
-## 📧 Contacto
-
-Para preguntas o sugerencias sobre el dataset creator, consulta la documentación de:
-- [MediaPipe Hand Landmark Detection](https://google.github.io/mediapipe/solutions/hands.html)
-- [OpenCV Python Tutorials](https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html)
-
----
-
-**Creado con ❤️ para investigación en Computer Vision y Machine Learning**
+**Creado para investigación en Computer Vision y Deep Learning**
