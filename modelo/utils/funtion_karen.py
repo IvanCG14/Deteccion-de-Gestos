@@ -11,7 +11,7 @@ from pathlib import Path
 
 # 1. Obtener la ruta de la carpeta raíz del proyecto (subiendo un nivel desde 'getdata')
 # __file__ es la ubicación de dataset_creator_myo.py
-BASE_DIR = Path(__file__).resolve().parent.parent 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # 2. Construir la ruta al SDK de forma relativa
 sdk_path = os.path.join(BASE_DIR, "MYO_armband_SDK", "myo-sdk-win-0.9.0")
