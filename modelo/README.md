@@ -155,18 +155,11 @@ Una vez finalizado el entrenamiento, el sistema genera automáticamente dos arch
 #### 5. Verificación de Métricas
 Al final del entrenamiento, el notebook despliega un reporte detallado. Puedes verificar la precisión por clase (Precision, Recall y F1-Score) para confirmar que el modelo no tiene sesgos:
 
-```text
-============================================================
-EVALUACIÓN FINAL (TEST SET)
-============================================================
-✓ Test Accuracy: 0.9820 (98.2%)
-
-              precision    recall  f1-score   support
-        none       1.00      1.00      1.00        20
-       paper       0.97      0.98      0.97        25
-        rock       0.98      0.96      0.97        28
-    scissors       1.00      1.00      1.00        10
-```
+<p align="center">
+  <img src="imgs/results_synchronized01.png" alt="Ejemplo de resultados" width="600">
+  <br>
+  <em>Ejemplo de resultados</em>
+</p>
 
 ---
 
@@ -175,9 +168,9 @@ EVALUACIÓN FINAL (TEST SET)
 El sistema utiliza una arquitectura de fusión multimodal diseñada para procesar diferentes tipos de señales en paralelo antes de combinarlas para la clasificación final:
 
 <p align="center">
-  <img src="imgs/diagrama_arquitectura.png" alt="Diagrama de la Arquitectura del Modelo" width="400">
+  <img src="imgs/diagrama_arquitectura.png" alt="Diagrama de la Arquitectura del Modelo" width="600">
   <br>
-  <em>Diagrama de flujo de datos y fusión de modalidades.</em>
+  <em>Diagrama de flujo de datos y fusión de modalidades</em>
 </p>
 
 #### Componentes Principales:
