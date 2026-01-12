@@ -1,8 +1,14 @@
-# Deteccion de Gestos
+# Detección de Gestos Multimodal (Rock, Paper, Scissors)
 
-## Instlación de Environment
+Este proyecto implementa un sistema de reconocimiento de gestos mediante **Deep Learning Multimodal**, fusionando visión artificial (RGB + Landmarks) y señales bioeléctricas (EMG + IMU) del brazalete **MYO Armband**.
 
-### Clonar/Descargar el proyecto
+---
+
+## 🛠️ 1. Instalación del Entorno
+
+Sigue estos pasos para configurar tu ambiente de desarrollo con soporte para GPU.
+
+### Preparación Inicial
 
 ```bash
 # en la carpeta de preferencia
@@ -17,95 +23,87 @@ cd ./environment/
 
 Los archivos `environment.yml` y `requirements.txt` permiten reproducir el entorno completo.
 
-### Opción 1 — Instalación automática (recomendada)
-Usa el fichero `environment.yml` para crear el entorno con todas las dependencias especificadas.
+### Opción A: Instalación automática (Recomendada)
 
-1. Desde la carpeta que contiene `environment.yml`, ejecuta:
+Usa el fichero `environment.yml` para crear el entorno con todas las dependencias especificadas.
 
 ```bash
 conda env create -f environment.yml
 conda activate cti_env_gpu
 ```
 
-2. Verifica la instalación de PyTorch y la disponibilidad de la GPU:
+### Opción B: Instalación manual (Paso a paso)
 
 ```bash
-python -c "import torch; print(f'Torch: {torch.__version__} | CUDA disponible: {torch.cuda.is_available()}')"
-```
-
-Si `CUDA disponible` es `True`, la GPU está configurada correctamente.
-
----
-
-### Opción 2 — Instalación manual
-Si la instalación automática falla o prefieres controlar cada paso:
-
-1. Crear y activar el entorno base:
-
-```bash
+# 1. Crear entorno
 conda create -n cti_env_gpu python=3.11.14 pip -y
 conda activate cti_env_gpu
-```
 
-2. Instalar PyTorch compatible con CUDA 13.0 (rueda oficial):
+# 2. Instalar PyTorch con soporte CUDA 13.0
+pip install torch==2.9.0+cu130 torchvision==0.24.0+cu130 --index-url [https://download.pytorch.org/whl/cu130](https://download.pytorch.org/whl/cu130)
 
-```bash
-pip install torch==2.9.0+cu130 torchvision==0.24.0+cu130 --index-url https://download.pytorch.org/whl/cu130
-```
-
-3. Instalar dependencias adicionales:
-
-```bash
+# 3. Instalar dependencias del proyecto
 pip install -r requirements.txt
 ```
 
-4. Verificación adicional (opcional):
+### Verificación de Hardware:
 
 ```bash
-# Comprobar versión de CUDA en el sistema
+# Comprobar estado de la GPU
 nvidia-smi
 
-# Probar desde Python
-python -c "import torch; print('Torch', torch.__version__); print('CUDA disponible:', torch.cuda.is_available()); print('Dispositivos CUDA:', torch.cuda.device_count())"
-```
-
-Si no dispone de GPU o prefieres instalar la versión CPU-only de PyTorch, usa:
-
-```bash
-pip install torch==2.9.0+cpu torchvision==0.24.0+cpu --index-url https://download.pytorch.org/whl/cpu
+# Verificar PyTorch en Python
+python -c "import torch; print(f'Torch: {torch.__version__} | CUDA: {torch.cuda.is_available()}')"
 ```
 
 ---
 
-## Creación de dataset
+## 📸 2. Generación de Datasets
 
-En la carpeta getdata se encuentra el script para generar un dataset de 2 modalidades:
-- RGB
-- Maracadores 3D
+En la carpeta `getdata/` se encuentran las herramientas necesarias para construir el dataset, permitiendo elegir entre un flujo de trabajo puramente visual o uno multimodal avanzado.
 
-Trabaja con opencv y mediapipe para detectar el tipo de gesto y la posición de los marcadores. El script es el archivo llamado [getdata_rsp.py](getdata/getdata_rsp.py)
+### 1. Dataset de 2 Modalidades (Básico)
+Utiliza el script `getdata_rsp.py` para capturas basadas únicamente en visión artificial.
+* **Ramas:** Imagen RGB y Marcadores 3D (Landmarks).
+* **Tecnologías:** OpenCV y MediaPipe.
+* **Uso:** Ideal para modelos que no requieren sensores externos.
 
-Link de dataset ejemplo: [Dataset_ejemplo](https://1drv.ms/f/c/66c04837d2873fa4/IgCSyiKERBCESYB2pku-jSTYAdretsgtq320lxWYOVtWO4M?e=l4WRRh)
+### 2. Dataset de 4 Ramas (Multimodal - Myo Armband)
+Utiliza el script `dataset_creator_myo.py` para una captura completa y sincronizada de bioseñales y visión.
+* **Ramas:**
+    1.  **RGB:** Imágenes de alta definición.
+    2.  **Marcadores 3D:** Coordenadas espaciales de la mano.
+    3.  **EMG:** 8 canales de actividad eléctrica muscular.
+    4.  **IMU:** Datos inerciales (orientación, aceleración y giroscopio).
+* **Sincronización:** El script gestiona hilos independientes para asegurar que los datos de los sensores coincidan exactamente con el frame capturado por la cámara, generando un archivo `metadata.json` como índice maestro.
 
-## Modelo Multimodal
+### 📂 Recursos y Referencias
+* **Scripts de captura:** [Carpeta getdata/](getdata/)
+* **Dataset de ejemplo:** [Dataset Multimodal Sincronizado](https://1drv.ms/f/c/66c04837d2873fa4/IgCSyiKERBCESYB2pku-jSTYAdretsgtq320lxWYOVtWO4M?e=l4WRRh)
 
-Este proyecto implementa un modelo de deep learning multimodal para reconocimiento de gestos de mano. Combina:
-- **Modalidad Visual (RGB)**: Imágenes procesadas con ResNet-18 preentrenado
-- **Modalidad Esquelética (3D)**: 21 landmarks de MediaPipe procesados con MLP
-- **Modalidad EMG**: 8 canales EMG procesados con LTSM
-- **Modalidad IMU**: Datos IMU de (orientación, aceleración, giroscopio)
+> **Nota:** Para el uso del sistema de 4 ramas, asegúrate de tener el SDK de Myo y el brazalete correctamente calibrado en el antebrazo.
 
-Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando Deep Learning multimodal que fusiona imágenes RGB y landmarks 3D de MediaPipe.
+---
 
-### Características
+## 🧠 3. Modelo Multimodal
 
-- ✅ **Modelo Multimodal**: Fusión de RGB + Skeleton 3D
-- ✅ **Transfer Learning**: ResNet-18 preentrenado en ImageNet
-- ✅ **Manejo de Desbalance**: Class weighting automático
-- ✅ **Pipeline Completo**: Desde datos crudos hasta modelo entrenado
-- ✅ **Visualizaciones**: Gráficas de entrenamiento y matriz de confusión
-- ✅ **Checkpoints**: Guardado automático del mejor modelo
-- ✅ **Reproducibilidad**: Seeds fijadas para resultados consistentes
+Este proyecto implementa una arquitectura de **Deep Learning Multimodal** diseñada para el reconocimiento de gestos en tiempo real. El modelo utiliza una estrategia de **Fusión Tardía (Late Fusion)**, donde cada modalidad es procesada por una rama especializada antes de combinarse en una capa de clasificación común.
+
+### Arquitectura de 4 Ramas
+Basado en el núcleo de `model_training.ipynb`, el sistema integra:
+
+* **Rama Visual (CNN):** Utiliza una **ResNet-18** (Transfer Learning) para extraer características espaciales de imágenes RGB redimensionadas a `128x128`.
+* **Rama Esquelética (3D):** Un bloque de capas densas (MLP) que procesa los 21 landmarks (63 coordenadas) extraídos por MediaPipe.
+* **Rama EMG (Bioseñales):** Procesa los 8 canales de electromiografía del brazalete Myo para detectar la intensidad de la contracción muscular.
+* **Rama IMU (Inercial):** Analiza la orientación (cuaterniones), aceleración y velocidad angular para capturar la dinámica del movimiento.
+
+### Características Principales
+
+- 🚀 **Fusión Sincronizada**: El modelo procesa muestras donde la imagen y las señales de los sensores ocurren en la misma ventana temporal mediante el archivo `metadata.json`.
+- 🧬 **Regularización con Mixup**: Implementa aumento de datos por mezcla lineal de muestras, lo que mejora drásticamente la generalización y reduce el overfitting.
+- ⚖️ **Optimización Avanzada**: Uso de `CosineAnnealingLR` para un decaimiento suave de la tasa de aprendizaje y `Adam` como optimizador.
+- 📊 **Evaluación Exhaustiva**: Generación automática de matrices de confusión y reportes de clasificación (Precision, Recall, F1) para cada gesto.
+- 💾 **Gestión de Checkpoints**: El sistema monitorea el *Validation Loss* y guarda automáticamente el estado óptimo en `best_model_synchronized.pth`.
 
 ---
 
@@ -129,12 +127,11 @@ Sistema de clasificación de gestos de mano (Rock, Paper, Scissors, None) usando
 ### Papers
 - 
 
-### Código Base
-- PyTorch: https://pytorch.org/
-- TorchVision: https://pytorch.org/vision/
-- MediaPipe: https://google.github.io/mediapipe/
-
 ---
+
+📧 Contacto e Investigación
+Proyecto desarrollado para la investigación en interfaces hombre-máquina y fusión sensorial. 
+**Licencia:** Open Source para fines educativos.
 
 
 
