@@ -108,7 +108,7 @@ python dataset_creator_myo.py
 Si utilizas el script `dataset_creator_myo.py`, sigue estas pautas para garantizar la calidad de las señales EMG e IMU:
 
 <p align="center">
-  <img src="imgs/myo_position.jpeg" width="450" alt="Correcto posicionamiento del Myo">
+  <img src="imgs/myo_position.jpeg" width="250" alt="Correcto posicionamiento del Myo">
   <br>
   <em>Ajuste correcto del brazalete en el antebrazo.</em>
 </p>
