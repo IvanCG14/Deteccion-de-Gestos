@@ -8,6 +8,7 @@ Sistema dual para la creación de datasets de gestos de mano (Rock, Paper, Sciss
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Uso](#uso)
 - [Formato de Datos](#formato-de-datos)
+- [Configuración del Hardware (Myo Armband)](#configuracion-del-hardware-(myo-armband))
 - [Landmarks de MediaPipe](#landmarks-de-mediapipe)
 - [Solución de Problemas](#solución-de-problemas)
 
@@ -102,6 +103,22 @@ python dataset_creator_myo.py
 
 ---
 
+## Configuración del Hardware (Myo Armband)
+
+Si utilizas el script `dataset_creator_myo.py`, sigue estas pautas para garantizar la calidad de las señales EMG e IMU:
+
+<p align="center">
+  <img src="imgs/myo_position.png" width="450" alt="Correcto posicionamiento del Myo">
+  <br>
+  <em>Ajuste correcto del brazalete en el antebrazo.</em>
+</p>
+
+1. **Ubicación:** Coloca el Myo en el antebrazo, aproximadamente a dos dedos de distancia del codo.
+2. **Orientación:** El módulo con el logo de Myo y el LED debe estar orientado hacia la parte superior (extensores del brazo).
+3. **Calentamiento:** Se recomienda llevar puesto el brazalete 2-3 minutos antes de iniciar la captura para que los sensores hagan buen contacto con la piel.
+
+---
+
 ## Landmarks de MediaPipe
 
 El sistema detecta **21 puntos** clave por mano, permitiendo entender la estructura ósea del gesto:
@@ -113,13 +130,16 @@ El sistema detecta **21 puntos** clave por mano, permitiendo entender la estruct
 | 5, 9, 13, 17 | MCP | Nudillos principales | 
 
 #### Estructura de la Mano
-![Marcadores_Mano](imgs/hand-landmarks.png)
 
-Derecha:
-![Mano_der](imgs/der.png)
+<p align="center"> <img src="imgs/hand-landmarks.png" width="450" alt="Diagrama de Landmarks">
 
-Izquierda:
-![Mano_izq](imgs/izq.png)
+<p align="center"> <em>Diagrama oficial de los 21 puntos clave de MediaPipe.</em> </p>
+
+#### Referencia de Orientación
+
+<p align="center"> <img src="imgs/der.png" width="250" alt="Mano Derecha"> &nbsp;&nbsp;&nbsp;&nbsp; <img src="imgs/izq.png" width="250" alt="Mano Izquierda">
+
+<p align="center"> <strong>Derecha &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Izquierda</strong> </p>
 
 ---
 
